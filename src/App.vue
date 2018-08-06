@@ -9,9 +9,10 @@
 
             <v-container text-xs-center grid-list-md>
                 <v-layout row wrap>
-                    <Followers :followers="followers"/>
-                    <Tweets :tweets="tweets"/>
-                    <Friends :friends="friends"/>
+
+                    <Followers :followers="followers" :loading="loading" :errors="errors.followers"/>
+                    <Tweets :tweets="tweets" :isLoading="loaders.tweets" :errors="errors.tweets"/>
+                    <Friends :friends="friends" :isLoading="loaders.friends" :errors="errors.friends"/>
                  </v-layout>
             </v-container>
         </template>
@@ -32,33 +33,62 @@ import Friends from "./components/Friends"
 import Tweets from "./components/Tweets"
 import Modal from "./components/Modal"
 import Login from "./components/Login"
+import { loading } from "./mixins/mixins";
+import { modal } from "./mixins/mixins";
 
 export default {
   name: 'App',
+  mixins: [loading, modal],
   data: () => ({
-      logged: false,
+    //   logged: false,
       user_data: {},
       token: "",
       followers: [],
       friends: [],
       tweets: [],
-      modal: false,
-      tweet_send: false
+      tweet_send: false,
+      loaders: {
+          friends: false,
+          tweets: false
+      },
+      errors: {
+          followers: {
+              status: false,
+              content: []
+          },
+          friends: {
+              status: false,
+              content: []
+          },
+          tweets: {
+              status: false,
+              content: []
+          },
+          navbar: {
+              status: false,
+              content: []
+          }
+      }
 
   }),
+  computed: {
+      logged() {
+          return this.$store.state.logged;
+      }
+  },
   methods: {
       checkAuthorization: function () {
           if(localStorage.getItem('atid')) {
-              this.logged = true;
+              this.$store.state.logged = true;
               this.token = localStorage.getItem('atid');
               this.loadData();
           } else if (this.$route.query.atid) {
               this.token = this.$route.query.atid;
               localStorage.setItem('atid', this.token)
-              this.logged = true;
+              this.$store.state.logged = true;
               this.loadData();
           } else {
-              this.logged = false;
+              this.$store.state.logged = false;
           }
 
       },
@@ -69,10 +99,10 @@ export default {
           this.getTweetsList();
       },
       showModal: function () {
-          this.modal = true;
+          this.toggleModal();
       },
       hideModal: function () {
-          this.modal = false;
+          this.toggleModal();
           this.tweet_send = false;
       },
       sendTweet: function (tweetText) {
@@ -100,27 +130,62 @@ export default {
       },
 
       getFollowersList: function() {
+          this.toggleLoading();
           let followers = "http://localhost:8888/followers";
 
           axios.get(followers, { headers: buildHeaders(this.token) })
           .then(response => {
-              return this.followers = JSON.parse(response.data);
+              this.toggleLoading();
+              let data = JSON.parse(response.data);
+            //   console.log(data);
+              if(data.status == 'OK') {
+                  this.errors.followers.status = false;
+                  return this.followers = data.data;
+
+              } else {
+                  this.errors.followers.status = true;
+                  return this.errors.followers.content = data.errors;
+              }
           })
       },
       getFriendsList: function() {
+          this.loaders.friends = true;
           let followers = "http://localhost:8888/friends";
 
           axios.get(followers, { headers: buildHeaders(this.token)})
           .then(response => {
-              return this.friends = JSON.parse(response.data);
+              this.loaders.friends = false;
+              let data = JSON.parse(response.data);
+              if(data.status == 'OK') {
+                  this.errors.friends.status = false;
+                  return this.friends = data.data;
+
+              } else {
+                  this.errors.friends.status = true;
+                //   console.log(this.errors.friends);
+                  return this.errors.friends.content = data.errors;
+              }
+
+
           })
       },
       getTweetsList: function() {
           let followers = "http://localhost:8888/tweets";
-
+           this.loaders.tweets = true;
           axios.get(followers, { headers: buildHeaders(this.token)})
           .then(response => {
-              return this.tweets = JSON.parse(response.data);
+              this.loaders.tweets = false;
+              let data = JSON.parse(response.data);
+            //   console.log(data);
+              if(data.status == 'OK') {
+                  this.errors.tweets.status = false;
+                  return this.tweets = data.data;
+
+              } else {
+                  this.errors.tweets.status = true;
+                  console.log(data.errors);
+                  return this.errors.tweets.content = data.errors;
+              }
           })
       }
 
@@ -163,6 +228,13 @@ export default {
     }
     hr {
         background-color: #e8e8e8;
+    }
+    .list__tile__sub-title, .list__tile__title {
+        white-space: normal;
+    }
+    .progress-circular {
+        margin: 2em auto;
+        color: #046cf0;
     }
 
 </style>

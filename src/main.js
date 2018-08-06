@@ -9,6 +9,7 @@ import 'vuetify/dist/vuetify.min.css'
 import VueAxios from 'vue-axios'
 import SocialSharing from 'vue-social-sharing'
 import App from './App'
+import store from './store/store'
 import routes from './routes/Routes'
 
 Vue.config.productionTip = false
@@ -24,5 +25,6 @@ const router = new VueRouter ({
 new Vue({
   el: '#app',
   router,
+  store,
   render: h => h(App)
 })
