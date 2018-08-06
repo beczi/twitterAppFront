@@ -5,7 +5,7 @@
           <v-toolbar-title>Aktualnie obserwujesz</v-toolbar-title>
           <v-spacer></v-spacer>
         </v-toolbar>
-        <v-progress-circular indeterminate color="primary" v-if="isLoading"></v-progress-circular>
+        <v-progress-circular indeterminate color="primary" v-if="loading"></v-progress-circular>
         <v-list two-line v-else>
             <template v-show="errors.status" v-for="(error, index) in errors.content">
                 <v-list-tile>
@@ -39,7 +39,25 @@
 
     export default {
         name: "Friends",
-        props: ["friends", "isLoading", "errors"]
+        methods: {
+            getFriendsList() {
+                this.$store.dispatch("getFriendsList");
+            }
+        },
+        computed: {
+            friends() {
+                return this.$store.state.friends;
+            },
+            loading() {
+                return this.$store.state.loading.friends;
+            },
+            errors() {
+                return this.$store.state.errors.friends;
+            },
+        },
+        mounted() {
+            this.getFriendsList();
+        }
     }
 
 </script>

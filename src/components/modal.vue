@@ -9,7 +9,7 @@
         <v-form  ref="form" lazy-validation class="modal__form">
           <v-text-field
             v-model="tweet"
-            placeholder="Co się dzieje"
+            placeholder="Co jest? CO JEST?! CO JEST?!?!"
           ></v-text-field>
 
           <v-btn
@@ -21,7 +21,7 @@
           </v-btn>
         </v-form>
       </template>
-      <div v-show="tweet_send" class="modal__info">Twój Tweet zostal wyslany</div>
+      <div v-show="tweetSended" class="modal__info">Twój Tweet zostal wyslany</div>
     </div>
 
 </template>
@@ -33,19 +33,22 @@
             tweet: ''
 
         }),
-        props: ["tweet_send"],
         computed: {
             validation: function() {
                 return this.tweet.length > 0
+            },
+            tweetSended: function() {
+                return this.$store.state.sendTweet;
             }
+
         },
         methods: {
             submit () {
-                this.$emit("sendTweet", this.tweet);
-            },
+                this.$store.dispatch("sendTweet", this.tweet);
 
+            },
             hideModal() {
-                this.$emit("hideModal");
+                this.$store.dispatch("hideModal");
             }
         }
     }

@@ -5,7 +5,7 @@
           <v-toolbar-title>Twoje ostatnie tweety</v-toolbar-title>
           <v-spacer></v-spacer>
         </v-toolbar>
-        <v-progress-circular indeterminate color="primary" v-if="isLoading"></v-progress-circular>
+        <v-progress-circular indeterminate color="primary" v-if="loading"></v-progress-circular>
         <v-list two-line v-else>
                 <template v-show="errors.status" v-for="(error, index) in errors.content">
                     <v-list-tile>
@@ -42,11 +42,27 @@
 
     export default {
         name: "Tweets",
-        props: ["tweets", "isLoading", "errors"],
         methods: {
             dateTransform: function(dateStr) {
                 return displayDate(dateStr)
+            },
+            getTweetsList() {
+                this.$store.dispatch("getTweetsList");
             }
+        },
+        computed: {
+            tweets() {
+                return this.$store.state.tweets;
+            },
+            loading() {
+                return this.$store.state.loading.tweets;
+            },
+            errors() {
+                return this.$store.state.errors.tweets;
+            },
+        },
+        mounted() {
+            this.getTweetsList();
         }
     }
 </script>

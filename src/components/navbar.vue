@@ -1,10 +1,10 @@
 <template>
     <nav class="nav">
       <div >
-        <span class="nav__name">{{ user_data.name }}</span>
-        <span class="nav__login">{{ user_data.login }}</span>
+        <span class="nav__name">{{ basicData.name }}</span>
+        <span class="nav__login">{{ basicData.login }}</span>
       </div>
-      <img class="nav__avatar" :src="user_data.avatar" >
+      <img class="nav__avatar" :src="basicData.avatar" >
       <v-btn @click="showModal" class="nav__btn">Tweetnij</v-btn>
     </nav>
 
@@ -14,14 +14,22 @@
 
 export default {
     name: "Navbar",
-    props: {
-        user_data: Object
+    computed: {
+        basicData() {
+            return this.$store.state.basicData;
+        }
     },
     methods: {
        showModal() {
-           this.$emit('showModal');
+           this.$store.dispatch("showModal");
+       },
+       getBasicData() {
+           this.$store.dispatch("getBasicData");
        }
-    }
+   },
+   mounted() {
+       this.getBasicData();
+   }
 }
 
 </script>

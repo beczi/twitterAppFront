@@ -8,7 +8,7 @@
         </v-toolbar>
         <v-progress-circular indeterminate color="primary" v-if="loading"></v-progress-circular>
         <v-list two-line v-else>
-            <transition name="fade">
+            <!-- <transition-group name="fade">  do poprawy-->
                 <template v-show="errors.status" v-for="(error, index) in errors.content">
                     <v-list-tile>
                       <v-list-tile-content>
@@ -34,7 +34,7 @@
                     </template>
                 </template>
 
-            </transition>
+            <!-- </transition-group> -->
         </v-list>
         </v-card>
     </v-flex>
@@ -44,8 +44,25 @@
 
     export default {
         name: "Followers",
-
-        props: ["followers", "errors", "loading"]
+        methods: {
+            getFollowersList() {
+                this.$store.dispatch("getFollowersList");
+            }
+        },
+        computed: {
+            followers() {
+                return this.$store.state.followers;
+            },
+            loading() {
+                return this.$store.state.loading.followers;
+            },
+            errors() {
+                return this.$store.state.errors.followers;
+            },
+        },
+        mounted() {
+            this.getFollowersList();
+        }
 
     }
 
